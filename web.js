@@ -1,49 +1,27 @@
+var CAMPAIGN_GOAL = 1000; // Your fundraising goal, in dollars
+ 
+// Initialize an Express app
 var express = require('express');
 var app = express.createServer();
-
-var http = require("http"),
-    url = require("url"),
-    path = require("path"),
-    fs = require("fs")
-    port = process.argv[2] || 8888;
-
-http.createServer(function(request, response) {
-
-  var uri = url.parse(request.url).pathname
-    , filename = path.join(process.cwd(), uri);
-
-  var contentTypesByExtension = {
-    '.html': "text/html",
-    '.css':  "text/css",
-    '.js':   "text/javascript"
-  };
-
-  path.exists(filename, function(exists) {
-    if(!exists) {
-      response.writeHead(404, {"Content-Type": "text/plain"});
-      response.write("404 Not Found\n");
-      response.end();
-      return;
-    }
-
-    if (fs.statSync(filename).isDirectory()) filename += '/index.html';
-
-    fs.readFile(filename, "binary", function(err, file) {
-      if(err) {        
-        response.writeHead(500, {"Content-Type": "text/plain"});
-        response.write(err + "\n");
-        response.end();
-        return;
-      }
-
-      var headers = {};
-      var contentType = contentTypesByExtension[path.extname(filename)];
-      if (contentType) headers["Content-Type"] = contentType;
-      response.writeHead(200, headers);
-      response.write(file, "binary");
-      response.end();
-    });
-  });
-}).listen(parseInt(port, 10));
-
-console.log("Static file server running at\n  => http://localhost:" + port + "/\nCTRL + C to shutdown");
+app.use("/static", express.static(__dirname + '/static')); // Serve static files
+app.use(express.bodyParser()); // Can parse POST requests
+app.listen(1337); // The best port
+console.log("App running on http://localhost:1337");
+ 
+// Serve homepage
+app.get("/",function(request,response){
+ 
+    // TODO: Actually get fundraising total
+    response.send(
+        "<link rel='stylesheet' type='text/css' href='/static/fancy.css'>"+
+        "<h1>Your Crowdfunding Campaign</h1>"+
+        "<h2>raised ??? out of $"+CAMPAIGN_GOAL.toFixed(2)+"</h2>"+
+        "<a href='/fund'>Fund This</a>"
+    );
+ 
+});
+ 
+// Serve funding page
+app.get("/fund",function(request,response){
+    response.sendfile("fund.html");
+});
