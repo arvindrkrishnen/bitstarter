@@ -17,7 +17,9 @@ var yelp = require("yelp").createClient({
 
 app.get('/', function(request, response) {    
    var html = fs.readFileSync(htmlfile).toString();    
-   response.send(html);
+   response.send("Going to be sending HTML");   
+response.send(html);
+   
 
 /*yelp.business("yelp-los-angeles", function(error, data) {
   console.log(error);
